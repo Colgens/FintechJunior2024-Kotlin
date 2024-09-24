@@ -10,6 +10,6 @@ fun main() = runBlocking {
 
     saveNews("news.csv", mostRatedNews)
     newsPrinter(mostRatedNews) {
-        saveToFile("news2.csv", mostRatedNews)
+        saveToFile("news2.md", mostRatedNews)
     }
 }

@@ -20,6 +20,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.5.8")
     testImplementation(kotlin("test"))
     testImplementation("io.ktor:ktor-client-mock:2.3.12")
+    implementation("com.opencsv:opencsv:5.9")
 }
 
 tasks.test {

@@ -12,19 +12,19 @@ class NewsPrinter {
     private val logger = LoggerFactory.getLogger("NewsPrinter")
 
     fun print(news: List<News>) {
-        val builder = buildNewsString(news)
+        val markdown = buildNewsMarkdown(news)
         logger.info("Печать новостей в консоль")
-        println(builder.toString())
+        println(markdown)
     }
 
     fun saveToFile(path: String, news: List<News>) {
-        val builder = buildNewsString(news)
+        val markdown = buildNewsMarkdown(news)
         val filePath = Path(path)
 
         try {
             require(!filePath.exists()) { "Файл уже существует по пути $path" }
 
-            filePath.writeText(builder.toString())
+            filePath.writeText(markdown.toString())
             logger.info("Сохранено ${news.size} новостей в $path")
         } catch (e: IOException) {
             logger.error("Не удалось сохранить новости в файл", e)
@@ -33,54 +33,19 @@ class NewsPrinter {
         }
     }
 
-    private fun buildNewsString(news: List<News>): StringBuilder {
-        val builder = StringBuilder()
-        news.forEach {
-            newsItem(builder) {
-                id = it.id
-                title = it.title
-                place = it.place?.title ?: "Неизвестно"
-                description = it.description
-                siteUrl = it.siteUrl
-                favorites = it.favoritesCount
-                comments = it.commentsCount
-                publicationDate = it.formattedDate
-                rating = it.rating
+    private fun buildNewsMarkdown(news: List<News>): Markdown {
+        return markdown {
+            news.forEach { article ->
+                h1 { +article.title }
+                p { +article.description }
+                link("Ссылка на новость", article.siteUrl)
+                info("Место", article.place?.title ?: "Неизвестно")
+                info("Лайки", article.favoritesCount.toString())
+                info("Комментарии", article.commentsCount.toString())
+                info("Дата публикации", article.formattedDate)
+                info("Рейтинг", article.rating.toString())
+                divider()
             }
-        }
-        return builder
-    }
-
-    private fun newsItem(builder: StringBuilder, init: NewsItemBuilder.() -> Unit) {
-        val itemBuilder = NewsItemBuilder()
-        itemBuilder.init()
-        builder.append(itemBuilder.build())
-    }
-
-    class NewsItemBuilder {
-        var id: Int = 0
-        var title: String = ""
-        var place: String = ""
-        var description: String = ""
-        var siteUrl: String = ""
-        var favorites: Int = 0
-        var comments: Int = 0
-        var publicationDate: String = ""
-        var rating: Double = 0.0
-
-        fun build(): String {
-            return """
-                ID: $id
-                Title: $title
-                Place: $place
-                Description: $description
-                Site URL: $siteUrl
-                Favorites: $favorites
-                Comments: $comments
-                Publication Date: $publicationDate
-                Rating: $rating
-                ----------------------------------------
-            """.trimIndent() + "\n"
         }
     }
 }
